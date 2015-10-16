@@ -40,11 +40,13 @@ case birth_path_num
 end
 
 get '/:birthdate' do
-birthdate = params[:birthdate]
-birth_path_num = get_birthpath_num(birthdate)
-@message = get_message(birth_path_num)
-"#{@message}"
-erb :index
+  setup_index_view
+end
+
+get '/message/:birth_path_num' do
+  birth_path_num = params[:birth_path_num].to_i
+  @message = get_message(birth_path_num)
+  erb :index
 end
 
 get '/' do
@@ -52,5 +54,36 @@ get '/' do
 end
 
 post '/' do
-    "#{params}"
+  birthdate = params[:birthdate]
+  if valid_birthdate(birthdate)
+    birth_path_num = get_birthpath_num(birthdate)
+    redirect "/message/#{birth_path_num}"
+  else
+    @error = "Oops! You should enter a valid birthdate in the form of mmddyyyy. Try again!"
+    erb :form
+  end
+
+end
+
+
+def setup_index_view
+  birthdate = params[:birthdate].gsub("-","")
+  birth_path_num = get_birthpath_num(birthdate)
+  @message = get_message(birth_path_num)
+  "#{@message}"
+  erb :index
+end
+
+def valid_birthdate(input)
+  if (input.length == 8 && !input.match(/^[0-9]+[0-9]$/).nil?)
+    true
+  else false
+end
+  end
+
+
+
+post '/' do
+  birth_path_num = get_birthpath_num(params[:birthdate])
+  redirect "/message/:birth_path_num}"
 end
